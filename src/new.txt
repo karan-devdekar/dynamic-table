@@ -1,0 +1,16 @@
+- use single row 
+- double up the column which has grouped values
+- make table dynamic(use react)
+- play with data
+
+- single row column
+- can use map , flat map
+- set to remove duplicates 
+- object constructor 
+
+- enable sorting
+
+
+- sorting on new benefits:
+ define datatype as number 
+if null, undefined or empty string is passed it should convert it into 0 (but display should be hyphen)
