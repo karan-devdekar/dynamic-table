@@ -12,5 +12,7 @@
 
 
 - sorting on new benefits:
- define datatype as number 
+ define datatype as number in columnDefs object 
 if null, undefined or empty string is passed it should convert it into 0 (but display should be hyphen)
+
+- add styling

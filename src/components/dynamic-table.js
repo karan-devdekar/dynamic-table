@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import TableHeader from './table-header';
+import TableBody from './table-body';
+import '../css/table-styles.css';
 
 const columnDefs = [
   { key: 'age', label: 'Age', filter: '' },
@@ -6,13 +9,9 @@ const columnDefs = [
   { key: 'benefits', label: 'Benefits', filter: '' },
   { key: 'guaranteed', label: 'Guaranteed', filter: '' },
   { key: 'nonGuaranteed', label: 'Non Guaranteed', filter: '' },
-  { key: 'newBenefit', label: 'New Benefits', filter: '' },
+  { key: 'newBenefit', label: 'New Benefits', filter: '', type: 'number' },
   { key: 'randomBenefits', label: 'Random Benefits', filter: '' },
 ];
-
-const checkValueNewBenefit = (value) => {
-  return value === null || value === undefined || value === '' ? 0 : Number(value);
-};
 
 const objectData = [
   { age: 20, policy: 'Policy A', benefits: 'Benefit A', guaranteed: 'Yes', nonGuaranteed: 'No', newBenefit: 540 },
@@ -20,10 +19,7 @@ const objectData = [
   { age: 35, policy: 'Policy A', benefits: 'Benefit A', guaranteed: 'Yes', nonGuaranteed: 'No', newBenefit: 240 },
   { age: 22, policy: 'Policy A', benefits: 'Benefit A', guaranteed: 'Yes', nonGuaranteed: 'No' },
   { age: 30, policy: 'Policy B', benefits: 'Benefit B', guaranteed: 'No', nonGuaranteed: 'Yes' },
-].map((row) => ({
-  ...row,
-  newBenefit: checkValueNewBenefit(row.newBenefit),
-}));
+];
 
 const DynamicTable = () => {
   const [data, setData] = useState(objectData);
@@ -56,10 +52,18 @@ const DynamicTable = () => {
     setSortConfig({ key: columnKey, direction });
 
     const sortedData = [...filteredData].sort((a, b) => {
-      if (a[columnKey] < b[columnKey]) {
+      let aValue = a[columnKey];
+      let bValue = b[columnKey];
+
+      if (columnDefs.find(col => col.key === columnKey)?.type === 'number') {
+        aValue = (aValue === undefined || aValue === null || aValue === '') ? 0 : Number(aValue);
+        bValue = (bValue === undefined || bValue === null || bValue === '') ? 0 : Number(bValue);
+      }
+
+      if (aValue < bValue) {
         return direction === 'asc' ? -1 : 1;
       }
-      if (a[columnKey] > b[columnKey]) {
+      if (aValue > bValue) {
         return direction === 'asc' ? 1 : -1;
       }
       return 0;
@@ -71,42 +75,17 @@ const DynamicTable = () => {
   return (
     <div>
       <table border="1">
-        <thead>
-          <tr>
-            {columnDefs.map((col, index) => (
-              <th key={col.key}>
-                {col.label}
-                <br />
-                <input
-                  type="text"
-                  value={filters[col.key] || ''}
-                  onChange={(e) => handleFilterChange(e, col.key)}
-                  placeholder={`Filter ${col.label}`}
-                />
-                {(col.key === 'age' || col.key === 'newBenefit') && (
-                  <button onClick={() => handleSort(col.key)}>
-                    {sortConfig.key === col.key
-                      ? sortConfig.direction === 'asc'
-                        ? '↑'
-                        : '↓'
-                      : '↕'}
-                  </button>
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map((row, index) => (
-            <tr key={index}>
-              {columnDefs.map((col, idx) => (
-                <td key={idx}>
-                {row[col.key] === 0 && col.key === 'newBenefit' ? '-' : row[col.key] !== undefined ? row[col.key] : '-'}
-              </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
+        <TableHeader 
+          columnDefs={columnDefs}
+          filters={filters}
+          handleFilterChange={handleFilterChange}
+          handleSort={handleSort}
+          sortConfig={sortConfig}
+        />
+        <TableBody
+          filteredData={filteredData}
+          columnDefs={columnDefs}
+        />
       </table>
     </div>
   );
